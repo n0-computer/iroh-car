@@ -1,12 +1,20 @@
 use futures::TryStreamExt;
 use iroh_car::*;
-use tokio::fs::{self, File};
 use tokio::io::BufReader;
 
-#[tokio::test]
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen_test::wasm_bindgen_test;
+
+#[cfg(target_arch = "wasm32")]
+wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
+
+const TEST_V1_CAR: &[u8] = include_bytes!("testv1.car");
+const CAR_V1_BASIC: &[u8] = include_bytes!("carv1_basic.car");
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
 async fn roundtrip_carv1_test_file() {
-    let file = File::open("tests/testv1.car").await.unwrap();
-    let buf_reader = BufReader::new(file);
+    let buf_reader = BufReader::new(TEST_V1_CAR);
 
     let car_reader = CarReader::new(buf_reader).await.unwrap();
     let header = car_reader.header().clone();
@@ -20,14 +28,13 @@ async fn roundtrip_carv1_test_file() {
     }
     writer.finish().await.unwrap();
 
-    let file = fs::read("tests/testv1.car").await.unwrap();
-    assert_eq!(file, buffer);
+    assert_eq!(TEST_V1_CAR, buffer.as_slice());
 }
 
-#[tokio::test]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[cfg_attr(not(target_arch = "wasm32"), tokio::test)]
 async fn roundtrip_carv1_basic_fixtures_file() {
-    let file = File::open("tests/carv1_basic.car").await.unwrap();
-    let buf_reader = BufReader::new(file);
+    let buf_reader = BufReader::new(CAR_V1_BASIC);
 
     let car_reader = CarReader::new(buf_reader).await.unwrap();
     let header = car_reader.header().clone();
@@ -69,6 +76,5 @@ async fn roundtrip_carv1_basic_fixtures_file() {
     }
     writer.finish().await.unwrap();
 
-    let file = fs::read("tests/carv1_basic.car").await.unwrap();
-    assert_eq!(file, buffer);
+    assert_eq!(CAR_V1_BASIC, buffer.as_slice());
 }
