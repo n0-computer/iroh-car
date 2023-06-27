@@ -9,7 +9,7 @@ rust-version = "1.65"
 repository = "https://github.com/n0-computer/iroh-car"
 
 [dependencies]
-cid = "0.9"
+cid = "0.10"
 futures = "0.3"
 integer-encoding = { version = "3.0", features = ["tokio_async"] }
 ipld = { package = "libipld", version = "0.15" }
