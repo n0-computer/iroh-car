@@ -1,0 +1,25 @@
+[package]
+name = "iroh-car"
+authors = ["dignifiedquire <me@dignifiedquire.com>"]
+description = "Implementation the car files for iroh"
+version = "0.2.0"
+edition = "2021"
+license = "Apache-2.0/MIT"
+rust-version = "1.65"
+repository = "https://github.com/n0-computer/iroh-car"
+
+[dependencies]
+cid = "0.9"
+futures = "0.3"
+integer-encoding = { version = "3.0", features = ["tokio_async"] }
+ipld = { package = "libipld", version = "0.15" }
+ipld-cbor = { package = "libipld-cbor", version = "0.15" }
+thiserror = "1"
+tokio = { version = "1", features = ["io-util"] }
+
+[dev-dependencies]
+multihash = "0.17"
+tokio = { version = "1", features = ["macros", "sync", "rt", "fs", "io-util"] }
+
+[features]
+default = []
