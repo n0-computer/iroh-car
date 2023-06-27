@@ -1,0 +1,179 @@
+name: Continuous integration
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_test:
+    name: Build and test
+    runs-on: ${{ matrix.runner }}
+    continue-on-error: false
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        rust: [stable]
+        experimental: [false]
+        include:
+          - os: ubuntu-latest
+            release-os: linux
+            release-arch: amd64
+            protoc-arch: linux-x86_64
+            runner: [linux, X64]
+          - os: macos-latest
+            release-os: darwin
+            release-arch: aarch64
+            protoc-arch: osx-aarch_64
+            runner: [macOS, ARM64]
+          - os: windows-latest
+            release-os: windows
+            release-arch: amd64
+            runner: [windows, X64]
+
+    env:
+      RUST_BACKTRACE: full
+      # Force not building debuginfo to save space on disk.
+      RUSTFLAGS: "-C debuginfo=0"
+      RUSTV: ${{ matrix.rust }}
+      MSRV: "1.65"
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Set build arch
+      run: |
+        echo "PROTOC_ARCH=${{ matrix.protoc-arch }}" >> $GITHUB_ENV
+
+    - name: Install ${{ matrix.rust }}
+      run: |
+        rustup toolchain install --profile default ${{ matrix.rust }}
+
+    - name: Install Rust MSRV
+      if: matrix.os != 'windows-latest'
+      run: |
+        rustup toolchain install --profile minimal $MSRV
+
+    - name: Install Rust MSRV
+      if: matrix.os == 'windows-latest'
+      run: |
+        rustup toolchain install --profile minimal $Env:MSRV
+
+    - name: Install Protoc windows
+      if: matrix.os == 'windows-latest'
+      uses: arduino/setup-protoc@v1
+      with:
+        version: '3.20.1'
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Install Protoc
+      if: matrix.os != 'windows-latest'
+      run: |
+        PROTOC_VERSION=3.20.1
+        PROTOC_ZIP=protoc-$PROTOC_VERSION-$PROTOC_ARCH.zip
+        curl --retry 3 --retry-max-time 90 -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -OL https://github.com/protocolbuffers/protobuf/releases/download/v$PROTOC_VERSION/$PROTOC_ZIP
+        sudo unzip -o $PROTOC_ZIP -d /usr/local bin/protoc
+        sudo unzip -o $PROTOC_ZIP -d /usr/local 'include/*'
+        rm -f $PROTOC_ZIP
+        echo "PROTOC=/usr/local/bin/protoc" >> $GITHUB_ENV
+        echo "PROTOC_INCLUDE=/usr/local/include" >> $GITHUB_ENV
+
+    - name: check MSRV default features
+      if: matrix.os != 'windows-latest'
+      run: |
+        cargo +$MSRV check --all-targets
+
+    - name: check MSRV all features
+      if: matrix.os != 'windows-latest'
+      run: |
+        cargo +$MSRV check --all-features --all-targets
+
+    - name: check MSRV default features
+      if: matrix.os == 'windows-latest'
+      run: |
+        cargo +$Env:MSRV check --all-targets
+
+    - name: check MSRV all features
+      if: matrix.os == 'windows-latest'
+      run: |
+        cargo +$Env:MSRV check --all-features --all-targets
+
+    - name: check default features
+      run: |
+        cargo check --all-targets
+
+    - name: check all features
+      run: |
+        cargo check --all-features --all-targets
+
+    - name: clippy default features
+      run: |
+        cargo clippy --all-targets -- -D warnings
+
+    - name: clippy all features
+      run: |
+        cargo clippy --all-features --all-targets -- -D warnings
+
+    - name: docs
+      env:
+        RUSTDOCFLAGS: -Dwarnings
+      run: |
+        cargo doc --all-features --no-deps --document-private-items
+
+    - name: tests
+      timeout-minutes: 30
+      run: |
+        cargo test --all-features --lib --bins --tests --examples
+
+    - name: tests w/o default features
+      timeout-minutes: 30
+      run: |
+        cargo test --no-default-features --lib --bins --tests --examples
+
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust:
+          - stable
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+      - run: rustup component add rustfmt
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+
+  audit:
+    name: audit
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust:
+          - stable
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --force cargo-audit
+      - uses: actions-rs/cargo@v1
+        with:
+          command: generate-lockfile
+      - uses: actions-rs/cargo@v1
+        with:
+          command: audit
