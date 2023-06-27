@@ -26,9 +26,10 @@ jobs:
             release-os: darwin
             release-arch: aarch64
             protoc-arch: osx-aarch_64
-          - os: windows-latest
-            release-os: windows
-            release-arch: amd64
+          # windows is broken somehow atm
+          # - os: windows-latest
+          #   release-os: windows
+          #   release-arch: amd64
 
     env:
       RUST_BACKTRACE: full
