@@ -76,57 +76,34 @@ jobs:
         echo "PROTOC=/usr/local/bin/protoc" >> $GITHUB_ENV
         echo "PROTOC_INCLUDE=/usr/local/include" >> $GITHUB_ENV
 
-    - name: check MSRV default features
+    - name: check MSRV
       if: matrix.os != 'windows-latest'
       run: |
         cargo +$MSRV check --all-targets
 
-    - name: check MSRV all features
-      if: matrix.os != 'windows-latest'
-      run: |
-        cargo +$MSRV check --all-features --all-targets
-
-    - name: check MSRV default features
+    - name: check MSRV
       if: matrix.os == 'windows-latest'
       run: |
         cargo +$Env:MSRV check --all-targets
 
-    - name: check MSRV all features
-      if: matrix.os == 'windows-latest'
-      run: |
-        cargo +$Env:MSRV check --all-features --all-targets
-
-    - name: check default features
+    - name: check
       run: |
         cargo check --all-targets
 
-    - name: check all features
-      run: |
-        cargo check --all-features --all-targets
-
-    - name: clippy default features
+    - name: clippy
       run: |
         cargo clippy --all-targets -- -D warnings
-
-    - name: clippy all features
-      run: |
-        cargo clippy --all-features --all-targets -- -D warnings
 
     - name: docs
       env:
         RUSTDOCFLAGS: -Dwarnings
       run: |
-        cargo doc --all-features --no-deps --document-private-items
+        cargo doc --no-deps --document-private-items
 
     - name: tests
       timeout-minutes: 30
       run: |
-        cargo test --all-features --lib --bins --tests --examples
-
-    - name: tests w/o default features
-      timeout-minutes: 30
-      run: |
-        cargo test --no-default-features --lib --bins --tests --examples
+        cargo test --lib --bins --tests --examples
 
   fmt:
     name: Rustfmt
