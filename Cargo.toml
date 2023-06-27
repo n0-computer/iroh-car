@@ -18,7 +18,7 @@ thiserror = "1"
 tokio = { version = "1", features = ["io-util"] }
 
 [dev-dependencies]
-multihash = "0.17"
+multihash = "0.19"
 tokio = { version = "1", features = ["macros", "sync", "rt", "fs", "io-util"] }
 
 [features]
