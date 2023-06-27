@@ -9,7 +9,7 @@ on:
 jobs:
   build_and_test:
     name: Build and test
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.os }}
     continue-on-error: false
     strategy:
       fail-fast: false
@@ -22,16 +22,13 @@ jobs:
             release-os: linux
             release-arch: amd64
             protoc-arch: linux-x86_64
-            runner: [linux, X64]
           - os: macos-latest
             release-os: darwin
             release-arch: aarch64
             protoc-arch: osx-aarch_64
-            runner: [macOS, ARM64]
           - os: windows-latest
             release-os: windows
             release-arch: amd64
-            runner: [windows, X64]
 
     env:
       RUST_BACKTRACE: full
