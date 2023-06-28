@@ -2,7 +2,7 @@ use anyhow::Result;
 use cid::Cid;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
-use crate::{reader::CarReaderSend, varint::read_varint_async};
+use crate::varint::read_varint_async;
 
 use super::error::Error;
 
@@ -11,7 +11,7 @@ pub(crate) const MAX_ALLOC: usize = 4 * 1024 * 1024;
 
 pub(crate) async fn ld_read<R>(mut reader: R, buf: &mut Vec<u8>) -> Result<Option<&[u8]>, Error>
 where
-    R: AsyncRead + CarReaderSend + Unpin,
+    R: AsyncRead + Unpin,
 {
     let length: usize = match read_varint_async(&mut reader).await {
         Ok(len) => len,
@@ -43,7 +43,7 @@ pub(crate) async fn read_node<R>(
     buf: &mut Vec<u8>,
 ) -> Result<Option<(Cid, Vec<u8>)>, Error>
 where
-    R: AsyncRead + CarReaderSend + Unpin,
+    R: AsyncRead + Unpin,
 {
     if let Some(buf) = ld_read(buf_reader, buf).await? {
         let mut cursor = std::io::Cursor::new(buf);

@@ -15,8 +15,7 @@ anyhow = "1"
 cid = "0.10"
 futures = "0.3"
 integer-encoding = { version = "3", features = ["tokio_async"] }
-libipld = { package = "libipld", version = "0.16", features = ["dag-cbor", "derive"] }
-libipld-cbor = { package = "libipld-cbor", version = "0.16" }
+ipld = { package = "libipld", version = "0.16", features = ["dag-cbor", "derive"] }
 thiserror = "1"
 tokio = { version = "^1", features = ["io-util"] }
 

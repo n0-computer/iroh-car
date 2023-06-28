@@ -8,18 +8,6 @@ use crate::{
     util::{ld_read, read_node},
 };
 
-#[cfg(not(target_arch = "wasm32"))]
-pub trait CarReaderSend: Send {}
-
-#[cfg(not(target_arch = "wasm32"))]
-impl<S> CarReaderSend for S where S: Send {}
-
-#[cfg(target_arch = "wasm32")]
-pub trait CarReaderSend {}
-
-#[cfg(target_arch = "wasm32")]
-impl<S> CarReaderSend for S {}
-
 /// Reads CAR files that are in a BufReader
 #[derive(Debug)]
 pub struct CarReader<R> {
@@ -30,7 +18,7 @@ pub struct CarReader<R> {
 
 impl<R> CarReader<R>
 where
-    R: AsyncRead + CarReaderSend + Unpin,
+    R: AsyncRead + Unpin,
 {
     /// Creates a new CarReader and parses the CarHeader
     pub async fn new(mut reader: R) -> Result<Self, Error> {
@@ -76,7 +64,7 @@ mod tests {
 
     use cid::Cid;
     use futures::TryStreamExt;
-    use libipld_cbor::DagCborCodec;
+    use ipld::cbor::DagCborCodec;
     use multihash::MultihashDigest;
 
     use crate::{header::CarHeaderV1, writer::CarWriter};

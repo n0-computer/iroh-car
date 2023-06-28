@@ -11,8 +11,6 @@ use std::{
 use integer_encoding::VarInt;
 use tokio::io::{AsyncRead, AsyncReadExt};
 
-use crate::reader::CarReaderSend;
-
 pub(crate) trait VarIntMaxSize {
     fn varint_max_size() -> usize;
 }
@@ -62,7 +60,7 @@ impl VarIntProcessor {
 pub async fn read_varint_async<V, R>(reader: &mut R) -> Result<V, std::io::Error>
 where
     V: VarInt,
-    R: AsyncRead + CarReaderSend + Unpin,
+    R: AsyncRead + Unpin,
 {
     let mut read_buffer = [0_u8; 1];
     let mut p = VarIntProcessor::new::<V>();

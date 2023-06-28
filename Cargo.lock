@@ -334,7 +334,6 @@ dependencies = [
  "futures",
  "integer-encoding",
  "libipld",
- "libipld-cbor",
  "multihash",
  "thiserror",
  "tokio",
