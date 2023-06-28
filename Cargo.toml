@@ -14,10 +14,10 @@ readme="README.md"
 anyhow = "1"
 cid = "0.10"
 futures = "0.3"
-integer-encoding = { version = "3", features = ["tokio_async"] }
 ipld = { package = "libipld", version = "0.16", features = ["dag-cbor", "derive"] }
 thiserror = "1"
 tokio = { version = "^1", features = ["io-util"] }
+unsigned-varint = "0.7.1"
 
 [dev-dependencies]
 multihash = "0.18"
@@ -28,6 +28,3 @@ default = []
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
 wasm-bindgen-test = { version = "^0.3" }
-
-[patch.crates-io]
-integer-encoding = { git = "https://github.com/dignifiedquire/integer-encoding-rs", branch = "feat-no-send-bound" }

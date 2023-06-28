@@ -1,8 +1,7 @@
 use cid::Cid;
-use integer_encoding::VarIntAsyncWriter;
 use tokio::io::{AsyncWrite, AsyncWriteExt};
 
-use crate::{error::Error, header::CarHeader};
+use crate::{error::Error, header::CarHeader, util::write_varint_usize};
 
 #[derive(Debug)]
 pub struct CarWriter<W> {
@@ -29,7 +28,7 @@ where
         if !self.is_header_written {
             // Write header bytes
             let header_bytes = self.header.encode()?;
-            self.writer.write_varint_async(header_bytes.len()).await?;
+            write_varint_usize(header_bytes.len(), &mut self.writer).await?;
             self.writer.write_all(&header_bytes).await?;
             self.is_header_written = true;
         }
@@ -50,7 +49,7 @@ where
         let data = data.as_ref();
         let len = self.cid_buffer.len() + data.len();
 
-        self.writer.write_varint_async(len).await?;
+        write_varint_usize(len, &mut self.writer).await?;
         self.writer.write_all(&self.cid_buffer).await?;
         self.writer.write_all(data).await?;
 

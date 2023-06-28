@@ -1,7 +1,6 @@
 use anyhow::Result;
 use cid::Cid;
-use integer_encoding::VarIntAsyncReader;
-use tokio::io::{AsyncRead, AsyncReadExt};
+use tokio::io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt};
 
 use super::error::Error;
 
@@ -12,16 +11,13 @@ pub(crate) async fn ld_read<R>(mut reader: R, buf: &mut Vec<u8>) -> Result<Optio
 where
     R: AsyncRead + Unpin,
 {
-    let length: usize = match VarIntAsyncReader::read_varint_async(&mut reader).await {
-        Ok(len) => len,
+    let length: usize = match read_varint_usize(&mut reader).await {
+        Ok(Some(len)) => len,
+        Ok(None) => return Ok(None),
         Err(e) => {
-            if e.kind() == std::io::ErrorKind::UnexpectedEof {
-                return Ok(None);
-            }
             return Err(Error::Parsing(e.to_string()));
         }
     };
-
     if length > MAX_ALLOC {
         return Err(Error::LdReadTooLarge(length));
     }
@@ -35,6 +31,37 @@ where
         .map_err(|e| Error::Parsing(e.to_string()))?;
 
     Ok(Some(&buf[..length]))
+}
+
+/// Read a varint from the provided reader. Returns `Ok(None)` on unexpected `EOF`.
+pub async fn read_varint_usize<R: AsyncRead + Unpin>(
+    mut reader: R,
+) -> Result<Option<usize>, unsigned_varint::io::ReadError> {
+    let mut b = unsigned_varint::encode::usize_buffer();
+    for i in 0..b.len() {
+        let n = reader.read(&mut b[i..i + 1]).await?;
+        if n == 0 {
+            return Ok(None);
+        }
+        if unsigned_varint::decode::is_last(b[i]) {
+            let slice = &b[..=i];
+            let (num, _) = unsigned_varint::decode::usize(slice)?;
+            return Ok(Some(num));
+        }
+    }
+    Err(unsigned_varint::decode::Error::Overflow)?
+}
+
+/// Write the given number as varint to the provided writer.
+pub async fn write_varint_usize<W: AsyncWrite + Unpin>(
+    num: usize,
+    mut writer: W,
+) -> std::io::Result<()> {
+    let mut buffer = unsigned_varint::encode::usize_buffer();
+    let to_write = unsigned_varint::encode::usize(num, &mut buffer);
+    writer.write_all(to_write).await?;
+
+    Ok(())
 }
 
 pub(crate) async fn read_node<R>(
@@ -56,7 +83,6 @@ where
 
 #[cfg(test)]
 mod tests {
-    use integer_encoding::VarIntAsyncWriter;
     use tokio::io::{AsyncWrite, AsyncWriteExt};
 
     use super::*;
@@ -71,7 +97,7 @@ mod tests {
     where
         W: AsyncWrite + Send + Unpin,
     {
-        writer.write_varint_async(bytes.len()).await?;
+        write_varint_usize(bytes.len(), &mut *writer).await?;
         writer.write_all(bytes).await?;
         writer.flush().await?;
         Ok(())
