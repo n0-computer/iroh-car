@@ -4,7 +4,6 @@ mod error;
 mod header;
 mod reader;
 mod util;
-mod varint;
 mod writer;
 
 pub use crate::header::CarHeader;

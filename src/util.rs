@@ -1,8 +1,7 @@
 use anyhow::Result;
 use cid::Cid;
+use integer_encoding::VarIntAsyncReader;
 use tokio::io::{AsyncRead, AsyncReadExt};
-
-use crate::varint::read_varint_async;
 
 use super::error::Error;
 
@@ -13,7 +12,7 @@ pub(crate) async fn ld_read<R>(mut reader: R, buf: &mut Vec<u8>) -> Result<Optio
 where
     R: AsyncRead + Unpin,
 {
-    let length: usize = match read_varint_async(&mut reader).await {
+    let length: usize = match VarIntAsyncReader::read_varint_async(&mut reader).await {
         Ok(len) => len,
         Err(e) => {
             if e.kind() == std::io::ErrorKind::UnexpectedEof {
