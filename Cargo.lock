@@ -342,7 +342,7 @@ checksum = "b6c80984affa11d98d1b88b66ac8853f143217b399d3c74116778ff8fdb4ed2e"
 
 [[package]]
 name = "iroh-car"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "cid",
