@@ -1,8 +1,7 @@
 use cid::Cid;
-use integer_encoding::VarIntAsyncWriter;
 use tokio::io::{AsyncWrite, AsyncWriteExt};
 
-use crate::{error::Error, header::CarHeader};
+use crate::{error::Error, header::CarHeader, util::write_varint_usize};
 
 #[derive(Debug)]
 pub struct CarWriter<W> {
@@ -25,18 +24,23 @@ where
         }
     }
 
+    pub async fn write_header(&mut self) -> Result<(), Error> {
+        if !self.is_header_written {
+            // Write header bytes
+            let header_bytes = self.header.encode()?;
+            write_varint_usize(header_bytes.len(), &mut self.writer).await?;
+            self.writer.write_all(&header_bytes).await?;
+            self.is_header_written = true;
+        }
+        Ok(())
+    }
+
     /// Writes header and stream of data to writer in Car format.
     pub async fn write<T>(&mut self, cid: Cid, data: T) -> Result<(), Error>
     where
         T: AsRef<[u8]>,
     {
-        if !self.is_header_written {
-            // Write header bytes
-            let header_bytes = self.header.encode()?;
-            self.writer.write_varint_async(header_bytes.len()).await?;
-            self.writer.write_all(&header_bytes).await?;
-            self.is_header_written = true;
-        }
+        self.write_header().await?;
 
         // Write the given block.
         self.cid_buffer.clear();
@@ -45,7 +49,7 @@ where
         let data = data.as_ref();
         let len = self.cid_buffer.len() + data.len();
 
-        self.writer.write_varint_async(len).await?;
+        write_varint_usize(len, &mut self.writer).await?;
         self.writer.write_all(&self.cid_buffer).await?;
         self.writer.write_all(data).await?;
 

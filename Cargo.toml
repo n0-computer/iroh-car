@@ -5,21 +5,26 @@ description = "Implementation the car files for iroh"
 version = "0.2.1"
 edition = "2021"
 license = "Apache-2.0/MIT"
-rust-version = "1.65"
+rust-version = "1.60.0"
 repository = "https://github.com/n0-computer/iroh-car"
+homepage = "https://github.com/n0-computer/iroh-car"
+readme="README.md"
 
 [dependencies]
-cid = "0.9"
+anyhow = "1"
+cid = "0.10"
 futures = "0.3"
-integer-encoding = { version = "3.0", features = ["tokio_async"] }
-ipld = { package = "libipld", version = "0.15" }
-ipld-cbor = { package = "libipld-cbor", version = "0.15" }
+ipld = { package = "libipld", version = "0.16", features = ["dag-cbor", "derive"] }
 thiserror = "1"
-tokio = { version = "1", features = ["io-util"] }
+tokio = { version = "^1", features = ["io-util"] }
+unsigned-varint = "0.7.1"
 
 [dev-dependencies]
-multihash = "0.17"
-tokio = { version = "1", features = ["macros", "sync", "rt", "fs", "io-util"] }
+multihash = "0.18"
+tokio = { version = "^1", features = ["macros", "sync", "rt", "io-util"] }
 
 [features]
 default = []
+
+[target.'cfg(target_arch = "wasm32")'.dev-dependencies]
+wasm-bindgen-test = { version = "^0.3" }
