@@ -24,23 +24,33 @@ where
         }
     }
 
-    pub async fn write_header(&mut self) -> Result<(), Error> {
+    /// Forces the header to be written. Also called implicitly by `write`.
+    ///
+    /// Returns the bytes written in this operation.
+    pub async fn write_header(&mut self) -> Result<usize, Error> {
+        let mut written = 0;
+
         if !self.is_header_written {
             // Write header bytes
             let header_bytes = self.header.encode()?;
-            write_varint_usize(header_bytes.len(), &mut self.writer).await?;
+            written += write_varint_usize(header_bytes.len(), &mut self.writer).await?;
             self.writer.write_all(&header_bytes).await?;
+            written += header_bytes.len();
             self.is_header_written = true;
         }
-        Ok(())
+
+        Ok(written)
     }
 
     /// Writes header and stream of data to writer in Car format.
-    pub async fn write<T>(&mut self, cid: Cid, data: T) -> Result<(), Error>
+    ///
+    /// Returns the bytes written in this operation.
+    pub async fn write<T>(&mut self, cid: Cid, data: T) -> Result<usize, Error>
     where
         T: AsRef<[u8]>,
     {
-        self.write_header().await?;
+        let mut written = 0;
+        written += self.write_header().await?;
 
         // Write the given block.
         self.cid_buffer.clear();
@@ -49,11 +59,13 @@ where
         let data = data.as_ref();
         let len = self.cid_buffer.len() + data.len();
 
-        write_varint_usize(len, &mut self.writer).await?;
+        written += write_varint_usize(len, &mut self.writer).await?;
         self.writer.write_all(&self.cid_buffer).await?;
         self.writer.write_all(data).await?;
+        written += self.cid_buffer.len();
+        written += data.len();
 
-        Ok(())
+        Ok(written)
     }
 
     /// Finishes writing, including flushing and returns the writer.
