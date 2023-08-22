@@ -18,17 +18,17 @@ ipld = { package = "libipld", version = "0.16", features = ["dag-cbor", "derive"
 thiserror = "1"
 tokio = { version = "^1", features = ["io-util"] }
 unsigned-varint = "0.7.1"
-getrandom = { version = "0.2", features = ["js"] }
 
 [dev-dependencies]
 multihash = "0.18"
 tokio = { version = "^1", features = ["macros", "sync", "rt", "io-util"] }
-proptest = "1.1"
-test-strategy = "0.3"
-
 
 [features]
 default = []
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
 wasm-bindgen-test = { version = "^0.3" }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+proptest = "1.1"
+test-strategy = "0.3"
