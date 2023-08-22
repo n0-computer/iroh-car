@@ -18,6 +18,7 @@ ipld = { package = "libipld", version = "0.16", features = ["dag-cbor", "derive"
 thiserror = "1"
 tokio = { version = "^1", features = ["io-util"] }
 unsigned-varint = "0.7.1"
+getrandom = { version = "0.2", features = ["js"] }
 
 [dev-dependencies]
 multihash = "0.18"
