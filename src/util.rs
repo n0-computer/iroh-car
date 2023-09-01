@@ -56,12 +56,12 @@ pub async fn read_varint_usize<R: AsyncRead + Unpin>(
 pub async fn write_varint_usize<W: AsyncWrite + Unpin>(
     num: usize,
     mut writer: W,
-) -> std::io::Result<()> {
+) -> std::io::Result<usize> {
     let mut buffer = unsigned_varint::encode::usize_buffer();
     let to_write = unsigned_varint::encode::usize(num, &mut buffer);
     writer.write_all(to_write).await?;
 
-    Ok(())
+    Ok(to_write.len())
 }
 
 pub(crate) async fn read_node<R>(

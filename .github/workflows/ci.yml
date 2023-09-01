@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
       - name: 'Setup Rust'
-        run: | 
+        run: |
           curl -sSf https://sh.rustup.rs | sh -s -- -y
           rustup component add clippy
           rustup component add rustfmt
@@ -37,13 +37,16 @@ jobs:
           echo "deb http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee -a /etc/apt/sources.list.d/google-chrome.list
           sudo apt-get update -qqy
           sudo apt-get -qqy install google-chrome-stable
-          CHROME_VERSION=$(google-chrome-stable --version)
-          CHROME_FULL_VERSION=${CHROME_VERSION%%.*}
-          CHROME_MAJOR_VERSION=${CHROME_FULL_VERSION//[!0-9]}
-          sudo rm /etc/apt/sources.list.d/google-chrome.list
-          export CHROMEDRIVER_VERSION=`curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR_VERSION%%.*}`
-          curl -L -O "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
-          unzip chromedriver_linux64.zip && chmod +x chromedriver && sudo mv chromedriver /usr/local/bin
+
+          CHROMEDRIVER_URL=$(curl https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json |
+              jq -r '.channels.Stable.downloads.chromedriver | map(select(.platform == "linux64")) | first.url')
+          curl -L -O "$CHROMEDRIVER_URL"
+          unzip chromedriver-linux64.zip
+          pushd ./chromedriver-linux64
+          chmod +x chromedriver
+          sudo mv chromedriver /usr/local/bin
+          popd
+
           chromedriver -version
         shell: bash
       - name: 'Run Rust headless browser tests'
@@ -82,7 +85,7 @@ jobs:
       # Force not building debuginfo to save space on disk.
       RUSTFLAGS: "-C debuginfo=0"
       RUSTV: ${{ matrix.rust }}
-      MSRV: "1.60"
+      MSRV: "1.63"
     steps:
     - uses: actions/checkout@master
 
