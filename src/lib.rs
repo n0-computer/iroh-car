@@ -6,6 +6,7 @@ mod reader;
 mod util;
 mod writer;
 
+pub use crate::error::Error;
 pub use crate::header::CarHeader;
 pub use crate::reader::CarReader;
 pub use crate::writer::CarWriter;
