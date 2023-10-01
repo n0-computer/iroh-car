@@ -20,7 +20,7 @@ tokio = { version = "^1", features = ["io-util"] }
 unsigned-varint = "0.7.1"
 
 [dev-dependencies]
-multihash = "0.18"
+multihash = "0.19"
 tokio = { version = "^1", features = ["macros", "sync", "rt", "io-util"] }
 test-strategy = "0.3"
 
