@@ -171,7 +171,7 @@ checksum = "fd94671561e36e4e7de75f753f577edafb0e7c05d6e4547229fdf7938fbcd2c3"
 dependencies = [
  "core2",
  "multibase",
- "multihash",
+ "multihash 0.18.1",
  "serde",
  "unsigned-varint",
 ]
@@ -416,7 +416,7 @@ dependencies = [
  "futures",
  "getrandom",
  "libipld",
- "multihash",
+ "multihash 0.19.1",
  "proptest",
  "test-strategy",
  "thiserror",
@@ -475,7 +475,7 @@ dependencies = [
  "libipld-macro",
  "libipld-pb",
  "log",
- "multihash",
+ "multihash 0.18.1",
  "thiserror",
 ]
 
@@ -513,7 +513,7 @@ dependencies = [
  "cid",
  "core2",
  "multibase",
- "multihash",
+ "multihash 0.18.1",
  "thiserror",
 ]
 
@@ -524,7 +524,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25856def940047b07b25c33d4e66d248597049ab0202085215dc4dca0487731c"
 dependencies = [
  "libipld-core",
- "multihash",
+ "multihash 0.18.1",
  "serde",
  "serde_json",
 ]
@@ -608,6 +608,16 @@ dependencies = [
  "multihash-derive",
  "sha2",
  "sha3",
+ "unsigned-varint",
+]
+
+[[package]]
+name = "multihash"
+version = "0.19.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "076d548d76a0e2a0d4ab471d0b1c36c577786dfc4471242035d97a12a735c492"
+dependencies = [
+ "core2",
  "unsigned-varint",
 ]
 
