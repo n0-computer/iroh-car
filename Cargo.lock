@@ -171,9 +171,21 @@ checksum = "fd94671561e36e4e7de75f753f577edafb0e7c05d6e4547229fdf7938fbcd2c3"
 dependencies = [
  "core2",
  "multibase",
- "multihash",
+ "multihash 0.18.1",
  "serde",
- "unsigned-varint",
+ "unsigned-varint 0.7.1",
+]
+
+[[package]]
+name = "cid"
+version = "0.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3147d8272e8fa0ccd29ce51194dd98f79ddfb8191ba9e3409884e751798acf3a"
+dependencies = [
+ "core2",
+ "multibase",
+ "multihash 0.19.1",
+ "unsigned-varint 0.8.0",
 ]
 
 [[package]]
@@ -412,16 +424,16 @@ name = "iroh-car"
 version = "0.4.0"
 dependencies = [
  "anyhow",
- "cid",
+ "cid 0.11.1",
  "futures",
  "getrandom",
  "libipld",
- "multihash",
+ "multihash 0.18.1",
  "proptest",
  "test-strategy",
  "thiserror",
  "tokio",
- "unsigned-varint",
+ "unsigned-varint 0.7.1",
  "wasm-bindgen-test",
 ]
 
@@ -475,7 +487,7 @@ dependencies = [
  "libipld-macro",
  "libipld-pb",
  "log",
- "multihash",
+ "multihash 0.18.1",
  "thiserror",
 ]
 
@@ -510,10 +522,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5acd707e8d8b092e967b2af978ed84709eaded82b75effe6cb6f6cc797ef8158"
 dependencies = [
  "anyhow",
- "cid",
+ "cid 0.10.1",
  "core2",
  "multibase",
- "multihash",
+ "multihash 0.18.1",
  "thiserror",
 ]
 
@@ -524,7 +536,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25856def940047b07b25c33d4e66d248597049ab0202085215dc4dca0487731c"
 dependencies = [
  "libipld-core",
- "multihash",
+ "multihash 0.18.1",
  "serde",
  "serde_json",
 ]
@@ -608,7 +620,17 @@ dependencies = [
  "multihash-derive",
  "sha2",
  "sha3",
- "unsigned-varint",
+ "unsigned-varint 0.7.1",
+]
+
+[[package]]
+name = "multihash"
+version = "0.19.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "076d548d76a0e2a0d4ab471d0b1c36c577786dfc4471242035d97a12a735c492"
+dependencies = [
+ "core2",
+ "unsigned-varint 0.7.1",
 ]
 
 [[package]]
@@ -1077,6 +1099,12 @@ name = "unsigned-varint"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d86a8dc7f45e4c1b0d30e43038c38f274e77af056aa5f74b93c2cf9eb3c1c836"
+
+[[package]]
+name = "unsigned-varint"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eb066959b24b5196ae73cb057f45598450d2c5f71460e98c49b738086eff9c06"
 
 [[package]]
 name = "version_check"
