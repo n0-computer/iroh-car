@@ -1,6 +1,7 @@
 use cid::Cid;
 use iroh_car::*;
-use multihash::{Code, Multihash, MultihashDigest};
+use multihash::Multihash;
+use multihash_codetable::{Code, MultihashDigest};
 use proptest::{collection::vec, prelude::any, prop_assert_eq, strategy::Strategy};
 use test_strategy::proptest;
 
