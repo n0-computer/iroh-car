@@ -1,7 +1,5 @@
 use cid::Cid;
-use ipld_core::codec::Codec;
 use serde::{Deserialize, Serialize};
-use serde_ipld_dagcbor::codec::DagCborCodec;
 
 use crate::error::Error;
 
@@ -19,7 +17,7 @@ impl CarHeader {
 
     pub fn decode(buffer: &[u8]) -> Result<Self, Error> {
         let header: CarHeaderV1 =
-            DagCborCodec::decode(buffer).map_err(|e| Error::Parsing(e.to_string()))?;
+            serde_ipld_dagcbor::from_reader(buffer).map_err(|e| Error::Parsing(e.to_string()))?;
 
         if header.roots.is_empty() {
             return Err(Error::Parsing("empty CAR file".to_owned()));
@@ -37,7 +35,7 @@ impl CarHeader {
     pub fn encode(&self) -> Result<Vec<u8>, Error> {
         match self {
             CarHeader::V1(ref header) => {
-                let res = DagCborCodec::encode_to_vec(header)?;
+                let res = serde_ipld_dagcbor::to_vec(header).expect("vec");
                 Ok(res)
             }
         }
@@ -79,7 +77,6 @@ impl From<Vec<Cid>> for CarHeaderV1 {
 #[cfg(test)]
 mod tests {
     use multihash_codetable::MultihashDigest;
-    use serde_ipld_dagcbor::codec::DagCborCodec;
 
     use super::*;
 
@@ -97,7 +94,7 @@ mod tests {
 
         let header = CarHeaderV1::from(vec![cid]);
 
-        let bytes = DagCborCodec::encode_to_vec(&header).unwrap();
+        let bytes = serde_ipld_dagcbor::to_vec(&header).unwrap();
 
         assert_eq!(
             serde_ipld_dagcbor::from_slice::<CarHeaderV1>(&bytes).unwrap(),

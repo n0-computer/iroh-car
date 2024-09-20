@@ -450,7 +450,6 @@ dependencies = [
  "cid",
  "futures",
  "getrandom",
- "ipld-core",
  "multihash",
  "multihash-codetable",
  "proptest",
