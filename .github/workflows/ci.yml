@@ -85,7 +85,7 @@ jobs:
       # Force not building debuginfo to save space on disk.
       RUSTFLAGS: "-C debuginfo=0"
       RUSTV: ${{ matrix.rust }}
-      MSRV: "1.63"
+      MSRV: "1.70"
     steps:
     - uses: actions/checkout@master
 

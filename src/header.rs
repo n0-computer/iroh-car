@@ -1,6 +1,5 @@
 use cid::Cid;
-use ipld::cbor::DagCborCodec;
-use ipld::codec::Codec;
+use serde::{Deserialize, Serialize};
 
 use crate::error::Error;
 
@@ -17,9 +16,8 @@ impl CarHeader {
     }
 
     pub fn decode(buffer: &[u8]) -> Result<Self, Error> {
-        let header: CarHeaderV1 = DagCborCodec
-            .decode(buffer)
-            .map_err(|e| Error::Parsing(e.to_string()))?;
+        let header: CarHeaderV1 =
+            serde_ipld_dagcbor::from_reader(buffer).map_err(|e| Error::Parsing(e.to_string()))?;
 
         if header.roots.is_empty() {
             return Err(Error::Parsing("empty CAR file".to_owned()));
@@ -37,7 +35,7 @@ impl CarHeader {
     pub fn encode(&self) -> Result<Vec<u8>, Error> {
         match self {
             CarHeader::V1(ref header) => {
-                let res = DagCborCodec.encode(header)?;
+                let res = serde_ipld_dagcbor::to_vec(header).expect("vec");
                 Ok(res)
             }
         }
@@ -57,11 +55,9 @@ impl CarHeader {
 }
 
 /// CAR file header version 1.
-#[derive(Debug, Clone, Default, ipld::DagCbor, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub struct CarHeaderV1 {
-    #[ipld]
     pub roots: Vec<Cid>,
-    #[ipld]
     pub version: u64,
 }
 
@@ -80,9 +76,7 @@ impl From<Vec<Cid>> for CarHeaderV1 {
 
 #[cfg(test)]
 mod tests {
-    use ipld::cbor::DagCborCodec;
-    use ipld::codec::{Decode, Encode};
-    use multihash::MultihashDigest;
+    use multihash_codetable::MultihashDigest;
 
     use super::*;
 
@@ -95,16 +89,15 @@ mod tests {
     #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
     #[cfg_attr(not(target_arch = "wasm32"), test)]
     fn symmetric_header_v1() {
-        let digest = multihash::Code::Blake3_256.digest(b"test");
-        let cid = Cid::new_v1(DagCborCodec.into(), digest);
+        let digest = multihash_codetable::Code::Blake3_256.digest(b"test");
+        let cid = Cid::new_v1(0x71, digest);
 
         let header = CarHeaderV1::from(vec![cid]);
 
-        let mut bytes = Vec::new();
-        header.encode(DagCborCodec, &mut bytes).unwrap();
+        let bytes = serde_ipld_dagcbor::to_vec(&header).unwrap();
 
         assert_eq!(
-            CarHeaderV1::decode(DagCborCodec, &mut std::io::Cursor::new(&bytes)).unwrap(),
+            serde_ipld_dagcbor::from_slice::<CarHeaderV1>(&bytes).unwrap(),
             header
         );
     }
