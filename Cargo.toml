@@ -18,7 +18,7 @@ serde = { version = "1.0.210", features = ["derive"] }
 serde_ipld_dagcbor = { version = "0.6.1", features = ["std"], default-features = false }
 thiserror = "1"
 tokio = { version = "^1", features = ["io-util"] }
-unsigned-varint = "0.7.1"
+unsigned-varint = { version = "0.7.1", features = ["std"] }
 
 [dev-dependencies]
 multihash = "0.19"
