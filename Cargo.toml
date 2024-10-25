@@ -2,7 +2,7 @@
 name = "iroh-car"
 authors = ["dignifiedquire <me@dignifiedquire.com>"]
 description = "Implementation the car files for iroh"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2021"
 license = "Apache-2.0/MIT"
 rust-version = "1.70.0"
