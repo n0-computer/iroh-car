@@ -9,7 +9,5 @@ updates:
     directory: "/" # Location of package manifests
     rebase-strategy: disabled
     schedule:
-      interval: weekly
+      interval: "weekly"
       day: "saturday"
-      time: "08:00"
-      timezone: "America/New_York"
